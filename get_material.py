@@ -42,7 +42,7 @@ llm = ChatOpenAI(model="gpt-4o")
 
 class MaterialBase(BaseModel):
     material: str
-    price: int
+    price: float
 
 class MaterialResponse(BaseModel):
     data: list[MaterialBase]

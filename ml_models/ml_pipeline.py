@@ -48,10 +48,10 @@ def forecast_next_n_days(model_path, scaler_path, feature_names_path, data_path,
 
 
 def get_n_days_forecast(n_days):
-    model_path = "random_forest_model.pkl"
-    scaler_path = "scaler.pkl"
-    feature_names_path = "feature_names.pkl"
-    data_path = "sample_daily_cost_dataset.csv"
+    model_path = "/Users/yashgupta/Desktop/augrio/ml_models/random_forest_model.pkl"
+    scaler_path = "/Users/yashgupta/Desktop/augrio/ml_models/scaler.pkl"
+    feature_names_path = "/Users/yashgupta/Desktop/augrio/ml_models/feature_names.pkl"
+    data_path = "/Users/yashgupta/Desktop/augrio/ml_models/sample_daily_cost_dataset.csv"
 
     pred = forecast_next_n_days(model_path, scaler_path, feature_names_path, data_path, n_days)
     return pred
@@ -80,15 +80,6 @@ def predict_labor_needed(input_data, model, label_encoder):
     return int(np.round(prediction[0]))
 
 def get_num_workers(input):
-    model, label_encoder = load_model(save_path="xgboost_model.pkl")
-    prediction = predict_labor_needed(sample_input, model, label_encoder)
+    model, label_encoder = load_model(save_path="/Users/yashgupta/Desktop/augrio/ml_models/xgboost_model.pkl")
+    prediction = predict_labor_needed(input, model, label_encoder)
     return prediction
-
-sample_input = {
-    "Project Type": "Road Construction",
-    "Size (sq ft)": 15000,
-    "Deadline (days)": 150,
-    "Machinery Available": "Yes",
-    "Productivity (sq ft/day/worker/machine)": 35.0,
-    "Machines Available": 1
-}
