@@ -52,6 +52,7 @@ class AgentState(TypedDict):
     scratchpad: List[BaseMessage]
     observation: str  # The most recent response from a tool
 # Load the JavaScript for marking the page
+
 script_dir = os.path.dirname(__file__)
 file_path = os.path.join(script_dir, 'mark_page.js')
 with open(file_path, 'r') as f:

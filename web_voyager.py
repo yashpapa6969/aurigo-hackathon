@@ -29,6 +29,9 @@ First, let's install our required packages:
 # %pip install -U --quiet langgraph langsmith langchain_openai
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 from getpass import getpass
 
 
@@ -97,24 +100,70 @@ import asyncio
 import platform
 
 
+# async def click(state: AgentState):
+#     # - Click [Numerical_Label]
+#     page = state["page"]
+#     click_args = state["prediction"]["args"]
+#     if click_args is None or len(click_args) != 1:
+#         return f"Failed to click bounding box labeled as number {click_args}"
+#     bbox_id = click_args[0]
+#     bbox_id = int(bbox_id)
+#     try:
+#         bbox = state["bboxes"][bbox_id]
+#     except Exception:
+#         return f"Error: no bbox for : {bbox_id}"
+#     x, y = bbox["x"], bbox["y"]
+#     await page.mouse.click(x, y)
+#     # TODO: In the paper, they automatically parse any downloaded PDFs
+#     # We could add something similar here as well and generally
+#     # improve response format.
+#     return f"Clicked {bbox_id}"
+
 async def click(state: AgentState):
-    # - Click [Numerical_Label]
+    """
+    Handles clicking on a bounding box by its numerical label.
+    Validates input and ensures proper error handling for invalid or missing bounding boxes.
+    """
     page = state["page"]
-    click_args = state["prediction"]["args"]
+    click_args = state.get("prediction", {}).get("args")
+
+    # Check if click_args is valid
     if click_args is None or len(click_args) != 1:
-        return f"Failed to click bounding box labeled as number {click_args}"
+        return f"Failed to click bounding box labeled as number {click_args}. Invalid arguments."
+
     bbox_id = click_args[0]
+
+    # Validate that bbox_id is a number
+    if not str(bbox_id).isdigit():
+        return f"Invalid bbox_id: {bbox_id}. Expected a numerical label."
+
     bbox_id = int(bbox_id)
+
     try:
+        # Retrieve the bounding box from state
         bbox = state["bboxes"][bbox_id]
-    except Exception:
-        return f"Error: no bbox for : {bbox_id}"
-    x, y = bbox["x"], bbox["y"]
-    await page.mouse.click(x, y)
-    # TODO: In the paper, they automatically parse any downloaded PDFs
-    # We could add something similar here as well and generally
-    # improve response format.
-    return f"Clicked {bbox_id}"
+    except KeyError:
+        return f"Error: No bounding box found for ID {bbox_id}."
+    except Exception as e:
+        return f"Unexpected error while accessing bbox: {e}"
+
+    x, y = bbox.get("x"), bbox.get("y")
+
+    # Ensure x and y coordinates are available
+    if x is None or y is None:
+        return f"Error: Bounding box {bbox_id} is missing 'x' or 'y' coordinates."
+
+    try:
+        # Perform the click action
+        await page.mouse.click(x, y)
+    except Exception as e:
+        return f"Error: Failed to perform click at coordinates ({x}, {y}) for bbox {bbox_id}. Details: {e}"
+
+    # Optional: Additional post-click processing can be added here
+    # e.g., parsing downloaded PDFs or improving response format
+
+    return f"Successfully clicked bounding box {bbox_id} at coordinates ({x}, {y})."
+
 
 
 async def type_text(state: AgentState):
@@ -381,26 +430,14 @@ async def main():
     browser = await browser.chromium.launch(headless=False, args=None)
     page = await browser.new_page()
     _ = await page.goto("https://www.google.com")
-    res = await call_agent("Could you explain the WebVoyager paper (on arxiv)?", page)
-    print(f"Final response: {res}")
-
-    res = await call_agent(
-    "Please explain the today's XKCD comic for me. Why is it funny?", page
-    )
-    print(f"Final response: {res}")
-
-    res = await call_agent("What are the latest blog posts from langchain?", page)
-    print(f"Final response: {res}")
-
-    res = await call_agent(
-    "Could you check google maps to see when i should leave to get to SFO by 7 o'clock? starting from SF downtown.",
-    page,
-    )
+    res = await call_agent("return 5 sites link which provide information for which material are required for constructing metro i india and return it i a list", page)
     print(f"Final response: {res}")
 
 
 
-async def call_agent(question: str, page, max_steps: int = 150):
+
+
+async def call_agent(question: str, page, max_steps: int = 10):
     event_stream = graph.astream(
         {
             "page": page,
