@@ -1,2 +1,4 @@
 .env
 .venv
+lightning_logs/xw*
+lightning_logs
