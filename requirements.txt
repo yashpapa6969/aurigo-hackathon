@@ -1,0 +1,7 @@
+langchain-core
+langchain-openai
+langchain-community
+playwright
+nest_asyncio
+typing_extensions
+python-dotenv
