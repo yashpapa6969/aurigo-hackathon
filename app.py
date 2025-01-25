@@ -3,6 +3,8 @@ import os
 import json
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt  # Added for plotting
+import plotly.express as px  # Added for interactive plots
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -156,6 +158,39 @@ def pipeline(projects_example, dynamic_weights, OPENAI_API_KEY=os.getenv('OPENAI
     return cost
 
 
+def plot_costs(cost_dict):
+    """Plot the project costs."""
+    structures = list(cost_dict.keys())
+    costs = list(cost_dict.values())
+    
+    plt.figure(figsize=(10, 5))
+    plt.bar(structures, costs, color='skyblue')
+    plt.title('Project Costs by Structure')
+    plt.xlabel('Structures')
+    plt.ylabel('Cost (in currency)')
+    plt.xticks(rotation=45)
+    st.pyplot(plt)  # Display the plot in Streamlit
+
+def plot_forecast(predictions):
+    """Plot the forecasted values."""
+    days = list(range(1, len(predictions) + 1))
+    
+    plt.figure(figsize=(10, 5))
+    plt.plot(days, predictions, marker='o', linestyle='-', color='orange')
+    plt.title('Forecasted Values Over Days')
+    plt.xlabel('Days')
+    plt.ylabel('Forecasted Value')
+    st.pyplot(plt)  # Display the plot in Streamlit
+
+def plot_workers_needed(workers_needed):
+    """Plot the estimated number of workers needed."""
+    project_types = list(workers_needed.keys())
+    workers = list(workers_needed.values())
+    
+    fig = px.bar(x=project_types, y=workers, labels={'x': 'Project Type', 'y': 'Estimated Workers'},
+                 title='Estimated Workers Needed by Project Type')
+    st.plotly_chart(fig)  # Display the interactive plot in Streamlit
+
 # ---------------- STREAMLIT APP ----------------
 def main():
     st.title("All-in-One Project & Forecasting Dashboard")
@@ -214,6 +249,7 @@ def main():
                 cost_result = pipeline(projects_example, dynamic_weights)
                 st.subheader("Cost Dictionary Output")
                 st.json(cost_result)
+                plot_costs(cost_result)  # Plot costs after computation
             except Exception as e:
                 st.error(f"Error during pipeline execution: {e}")
 
@@ -226,6 +262,7 @@ def main():
                 predictions = get_n_days_forecast(n_days)
                 st.subheader("Forecasted Values:")
                 st.write(predictions)
+                plot_forecast(predictions)  # Plot forecasted values
             except Exception as e:
                 st.error(f"Error during forecasting: {e}")
 
@@ -250,6 +287,7 @@ def main():
             try:
                 workers_needed = get_num_workers(sample_input)
                 st.success(f"Estimated Workers Needed: {workers_needed}")
+                plot_workers_needed({project_type_input: workers_needed})  # Plot workers needed
             except Exception as e:
                 st.error(f"Error during labor estimation: {e}")
 

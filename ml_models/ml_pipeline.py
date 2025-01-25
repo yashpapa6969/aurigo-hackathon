@@ -74,12 +74,15 @@ def predict_labor_needed(input_data, model, label_encoder):
     input_df = input_df[['Project Type', 'Size (sq ft)', 'Deadline (days)', 
                          'Machinery Available', 'Productivity (sq ft/day/worker/machine)', 
                          'Machines Available']]
+    print(input_df)
+    machine_available = input_df['Machines Available'].values[0]
+    print(machine_available)
 
     # Predict labor needed
     prediction = model.predict(input_df)
-    return int(np.round(prediction[0]))
+    return int(np.round(prediction[0])),machine_available
 
 def get_num_workers(input):
     model, label_encoder = load_model(save_path="/Users/yashgupta/Desktop/augrio/ml_models/xgboost_model.pkl")
-    prediction = predict_labor_needed(input, model, label_encoder)
-    return prediction
+    prediction,machine_available = predict_labor_needed(input, model, label_encoder)
+    return int(np.round(prediction/int(machine_available)))
