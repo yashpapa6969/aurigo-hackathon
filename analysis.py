@@ -66,7 +66,6 @@ class AnalysingBuildingData:
         Process data by embedding text chunks
         """
         for i, chunk in enumerate(self.text_chunks, 1):
-            print(f"Processing chunk {i}")
             embedding = self.embedding_model.embed_documents([chunk])[0]
             document_id = str(uuid.uuid4())
             
@@ -175,53 +174,60 @@ class AnalysingBuildingData:
         }}
     }}
 
+    **strictly use tha exact same keys in Materials (with cost per unit) such that if we perform exact match then strings should match exactly**.
     Please ensure that the response is only in JSON format without any additional explanation or text no special characters NO MATTER WHAT dont give ```json.
     """),
-    ("human", "Context: {context}")
+    ("human", "Components: {context}, Materials: {materials}"),
 ])
 
         
         # Create the RAG chain using the prompt
         rag_chain = (
-            {"context": self.vectorstore.as_retriever(search_kwargs={"k": 3}), 
-             "question": RunnablePassthrough()}
-            | prompt 
+        prompt 
             | self.llm
         )
         
         return rag_chain
 
-    def query(self, query):
-        """
-        Query the building data
-        """
-        return self.rag_chain.invoke(query)
+    def query(self, user_query):
+
+        context = json.dumps(self.combined_data, indent=2)
+        
+        # Prepare the input for the RAG chain
+        input_data = {
+            "context": context,  # Full combined data as a single string
+            "materials": user_query  # User's specific query/task
+        }
+        
+        # Invoke the chain and return the response
+        return self.rag_chain.invoke(input=input_data)
+
 
     def get_original_data(self):
         """
         Return the original JSON data
         """
         return self.combined_data
-import os
+# import os
 
-# Example usage
-if __name__ == "__main__":
-    # Initialize the Building Data Query System
-    building_query = AnalysingBuildingData(
-        "./componentInput.json", 
-        "./materialInput.json", 
-        os.getenv("OPENAI_API_KEY")
-    )
+# # Example usage
+# if __name__ == "__main__":
+#     # Initialize the Building Data Query System
+#     building_query = AnalysingBuildingData(
+#         "./componentInput.json", 
+#         "./materialInput.json", 
+#         os.getenv("OPENAI_API_KEY")
+#     )
     
-    # Print original JSON data for reference
-    # print("Original Data:")
-    # print(json.dumps(building_query.get_original_data(), indent=2))
+#     # Print original JSON data for reference
+#     # print("Original Data:")
+#     # print(json.dumps(building_query.get_original_data(), indent=2))
     
-    # Query the data
-    query1 = ""
-    response1 = building_query.query(query1)
-    print("\nQuery 1 Response:", response1.content)
+#     # Query the data
+#     query1 = ""
+#     response1 = building_query.query(query1)
+#     print("\nQuery 1 Response:", response1.content)
     
-print(response1.content)
-print(type(response1.content))
-print(json.dumps(response1.content, indent=2))
+# print(response1.content)
+# print(type(response1.content))
+# print(json.dumps(response1.content, indent=2))
