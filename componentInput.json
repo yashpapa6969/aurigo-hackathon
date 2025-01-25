@@ -1,0 +1,34 @@
+[
+    {
+        "component": "Pillar",
+        "dimensions": {
+            "height": 4,
+            "width": 0.5,
+            "length": 0.5
+        }
+    },
+    {
+        "component": "Beam",
+        "dimensions": {
+            "height": 0.3,
+            "width": 0.4,
+            "length": 6
+        }
+    },
+    {
+        "component": "Slab",
+        "dimensions": {
+            "height": 0.2,
+            "width": 6,
+            "length": 6
+        }
+    },
+    {
+        "component": "Foundation",
+        "dimensions": {
+            "height": 1.5,
+            "width": 6,
+            "length": 6
+        }
+    }
+]

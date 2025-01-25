@@ -1,0 +1,10 @@
+[
+    { "material": "Bitumen", "price": 50000 },
+    { "material": "Cement", "price": 3500 },
+    { "material": "Steel", "price": 60000 },
+    { "material": "Aggregate", "price": 2000 },
+    { "material": "Lime", "price": 1800 },
+    { "material": "Fly Ash", "price": 1200 },
+    { "material": "Ultra High Performance Concrete", "price": 8000 },
+    { "material": "Sand", "price": 1500 }
+]
